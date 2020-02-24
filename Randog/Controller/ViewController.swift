@@ -10,11 +10,53 @@ import UIKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var imageView: UIImageView!
+    @IBOutlet weak var activityIndicatior: UIActivityIndicatorView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        loadRandomDogImage()
+        let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
+        imageView.addGestureRecognizer(tapGestureRecognizer)
+        imageView.isUserInteractionEnabled = true
+        activityIndicatior.isHidden = false
     }
-
-
+    
+    @objc func imageTapped(){
+        activityIndicatior.isHidden = false
+        print("Image tap detected!")
+        loadRandomDogImage()
+    }
+    
+    func loadRandomDogImage(){
+        let randomImgEndpoint = DogAPI.Endpoint.randomImgFromAllDogsCollection.url
+        let task = URLSession.shared.dataTask(with: randomImgEndpoint){ (data, response, error) in
+            guard let data = data else {
+                print("No data or there was an error")
+                return
+            }
+            let decoder = JSONDecoder()
+            do{
+                let dogImg = try decoder.decode(DogImage.self, from: data)
+                let imageURL = URL(string: dogImg.message)!
+                let imageLoadingTask = URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
+                    guard let data = data else {
+                        print("Error setting image data")
+                        return
+                    }
+                    DispatchQueue.main.async {
+                        self.imageView.image = UIImage(data: data)
+                        self.activityIndicatior.isHidden = true
+                    }
+                }
+                imageLoadingTask.resume()
+            }catch{
+                print(error)
+            }
+        }
+        task.resume()
+    }
+    
+    
 }
 

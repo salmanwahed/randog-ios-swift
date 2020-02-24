@@ -7,3 +7,13 @@
 //
 
 import Foundation
+
+class DogAPI {
+    enum Endpoint: String {
+        case randomImgFromAllDogsCollection = "https://dog.ceo/api/breeds/image/random"
+        
+        var url: URL {
+            return URL(string: self.rawValue)!
+        }
+    }
+}
