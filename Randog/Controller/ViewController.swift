@@ -29,32 +29,24 @@ class ViewController: UIViewController {
     }
     
     func loadRandomDogImage(){
-        let randomImgEndpoint = DogAPI.Endpoint.randomImgFromAllDogsCollection.url
-        let task = URLSession.shared.dataTask(with: randomImgEndpoint){ (data, response, error) in
-            guard let data = data else {
-                print("No data or there was an error")
-                return
-            }
-            let decoder = JSONDecoder()
-            do{
-                let dogImg = try decoder.decode(DogImage.self, from: data)
-                guard let imageURL = URL(string: dogImg.message) else {
-                    print("Not valid url")
-                    return
-                }
-                
-                DogAPI.requestImgFile(imageURL: imageURL) { (image, error) in
-                    DispatchQueue.main.async {
-                        self.imageView.image = image
-                        self.activityIndicatior.isHidden = true
-                    }
-                }
-                
-            }catch{
-                print(error)
-            }
+        DogAPI.requestRandomImage(completionHandler: handleRandomImgResponse(dogImg:error:))
+    }
+    
+    func handleRandomImgResponse(dogImg: DogImage?, error: Error?){
+        guard let imageURL = URL(string: dogImg!.message) else {
+            print("Not valid url")
+            return
         }
-        task.resume()
+        DogAPI.requestImgFile(imageURL: imageURL) { (image, error) in
+            self.handleImgFileResponse(image: image, error: error)
+        }
+    }
+    
+    func handleImgFileResponse(image: UIImage?, error: Error?){
+        DispatchQueue.main.async {
+            self.imageView.image = image
+            self.activityIndicatior.isHidden = true
+        }
     }
     
     
