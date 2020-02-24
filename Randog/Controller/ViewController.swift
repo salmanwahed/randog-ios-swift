@@ -38,18 +38,18 @@ class ViewController: UIViewController {
             let decoder = JSONDecoder()
             do{
                 let dogImg = try decoder.decode(DogImage.self, from: data)
-                let imageURL = URL(string: dogImg.message)!
-                let imageLoadingTask = URLSession.shared.dataTask(with: imageURL) { (data, response, error) in
-                    guard let data = data else {
-                        print("Error setting image data")
-                        return
-                    }
+                guard let imageURL = URL(string: dogImg.message) else {
+                    print("Not valid url")
+                    return
+                }
+                
+                DogAPI.requestImgFile(imageURL: imageURL) { (image, error) in
                     DispatchQueue.main.async {
-                        self.imageView.image = UIImage(data: data)
+                        self.imageView.image = image
                         self.activityIndicatior.isHidden = true
                     }
                 }
-                imageLoadingTask.resume()
+                
             }catch{
                 print(error)
             }
