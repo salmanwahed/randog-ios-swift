@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var pickerView: UIPickerView!
     
     var breeds: [String] = []
+    var currentBreed: String?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +30,11 @@ class ViewController: UIViewController {
     
     @objc func imageTapped(){
         print("Image tap detected!")
-        loadRandomDogImage()
+        if self.currentBreed != nil {
+            loadRandomDogImage(dogBreed: currentBreed!)
+        }else{
+            loadRandomDogImage()
+        }
     }
     
     func loadDogBreeds(){
@@ -82,7 +87,10 @@ extension ViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
-        return breeds[row]
+        let breedName = breeds[row]
+        self.currentBreed = breedName
+        print("Current showing breed: \(breedName)")
+        return breedName
     }
     
 }
