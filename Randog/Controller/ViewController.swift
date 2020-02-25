@@ -29,7 +29,6 @@ class ViewController: UIViewController {
     }
     
     @objc func imageTapped(){
-        print("Image tap detected!")
         if self.currentBreed != nil {
             loadRandomDogImage(dogBreed: currentBreed!)
         }else{
@@ -83,14 +82,14 @@ extension ViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        loadRandomDogImage(dogBreed: breeds[row])
-    }
-    
-    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
         let breedName = breeds[row]
         self.currentBreed = breedName
         print("Current showing breed: \(breedName)")
-        return breedName
+        loadRandomDogImage(dogBreed: breedName)
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return breeds[row]
     }
     
 }
