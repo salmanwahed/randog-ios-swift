@@ -11,25 +11,44 @@ import UIKit
 class ViewController: UIViewController {
 
     @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var activityIndicatior: UIActivityIndicatorView!
+    @IBOutlet weak var pickerView: UIPickerView!
+    
+    var breeds: [String] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadRandomDogImage()
+        pickerView.dataSource = self
+        pickerView.delegate = self
+        
+        loadDogBreeds()
+        
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageTapped))
         imageView.addGestureRecognizer(tapGestureRecognizer)
         imageView.isUserInteractionEnabled = true
-        activityIndicatior.isHidden = false
     }
     
     @objc func imageTapped(){
-        activityIndicatior.isHidden = false
         print("Image tap detected!")
         loadRandomDogImage()
     }
     
+    func loadDogBreeds(){
+        DogAPI.requestAllBreedList(completionHandler: handleBreedListResponse(breedList:error:))
+    }
+    
     func loadRandomDogImage(){
         DogAPI.requestRandomImage(completionHandler: handleRandomImgResponse(dogImg:error:))
+    }
+    
+    func loadRandomDogImage(dogBreed breed: String){
+        DogAPI.requestRandomImage(breed:breed, completionHandler: handleRandomImgResponse(dogImg:error:))
+    }
+    
+    func handleBreedListResponse(breedList: [String], error: Error?){
+        self.breeds = breedList
+        DispatchQueue.main.async {
+            self.pickerView.reloadAllComponents()
+        }
     }
     
     func handleRandomImgResponse(dogImg: DogImage?, error: Error?){
@@ -45,10 +64,26 @@ class ViewController: UIViewController {
     func handleImgFileResponse(image: UIImage?, error: Error?){
         DispatchQueue.main.async {
             self.imageView.image = image
-            self.activityIndicatior.isHidden = true
         }
     }
+}
+
+extension ViewController: UIPickerViewDelegate, UIPickerViewDataSource {
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
     
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        breeds.count
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        loadRandomDogImage(dogBreed: breeds[row])
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return breeds[row]
+    }
     
 }
 
